@@ -1,0 +1,49 @@
+{
+	// Place your dsp-visualizer workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"Building Descriptor": {
+		"scope": "typescript",
+		"prefix": "building-descriptor",
+		"body": [
+			"${1:key}: {",
+			"\tkey: \"$1\",",
+			"\tname: \"$2\",",
+			"\thref: \"$3\",",
+			"\ticonHref: \"$4\",",
+			"\tworkConsumption: SI.KILO(PowerUnit.WATTS).of(${5:0}),",
+			"\tidleConsumption: SI.KILO(PowerUnit.WATTS).of(${6:0}),",
+			"\trecipeMods: [$0],",
+			"},"
+		],
+		"description": "Adds a descriptor property to buildings.ts::BUILDINGS"
+	},
+	"Component Descriptor": {
+		"scope": "typescript",
+		"prefix": "component-descriptor",
+		"body": [
+			"${3:${2/[^a-zA-Z]//ig}}: {$0 // ${2:${1/^.*\\/Icon_(.+)\\.png$/${1:key}/}}",
+			"\tkey: \"${4:${2/[^a-zA-Z]//ig}}\",",
+			"\tname: \"${5:${2/_/ /g}}\",",
+			"\thref: \"${6:${2/^(.*)$/https:\\/\\/dsp-wiki.com\\/$1/}}\",",
+			"\ticonHref: \"$1\",",
+			"\tcoordinates: [ ComponentTableOrder.${7|Components,Buildings|}, TableRowOrder.${8|RawComponents,RefinedComponents,BasicComponents,IntermediateComponents1,IntermediateComponents2,AdvancedComponents1,AdvancedComponents2,PowerBuildings,LogisticComponents,SourceComponents,FabricationComponents|}, ${9:10} ],",
+			"\trecipes: new Set([]),",
+			"},"
+		],
+		"description": "Adds a descriptor property to components.ts::COMPONENTS"
+	},
+}
