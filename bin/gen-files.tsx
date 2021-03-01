@@ -5,6 +5,7 @@ import { format } from "prettier";
 import React, { useState, useEffect } from "react";
 
 import * as COMPONENTS from "./gen-components";
+import * as RECIPES from "./gen-recipes";
 
 export type Generator = {
     file: string,
@@ -14,7 +15,7 @@ export type Generator = {
 export type MessageFunction = (newMessage: JSX.Element) => void;
 
 function prettify(source: string) {
-    return format(source, { parser: "typescript" });
+    return format(source, { parser: "typescript", printWidth: 120 });
 }
 
 function generate(generator: Generator, msg: MessageFunction) {
@@ -27,16 +28,23 @@ function generate(generator: Generator, msg: MessageFunction) {
 }
 
 const Spinner = () => {
+    const ANIMATION = [
+        "[ 🚚 🚌 🚄 🚤 ✈ ]",
+        "[ 🚌 🚄 🚤 ✈ 🚚 ]",
+        "[ 🚄 🚤 ✈ 🚚 🚌 ]",
+        "[ 🚤 ✈ 🚚 🚌 🚄 ]",
+        "[ ✈ 🚚 🚌 🚄 🚤 ]",
+    ];
     const [ idx, setIdx ] = useState(0);
     useEffect(() => {
-        const timer = setInterval(() => setIdx(idx => idx + 1), 100);
+        const timer = setInterval(() => setIdx(idx => idx + 1), 1000 / ANIMATION.length);
         return () => clearInterval(timer);
     }, []);
-    return <Text> {["\\", "|", "/", "-"][idx % 4]}</Text>;
+    return <Text> {ANIMATION[idx % ANIMATION.length]}</Text>;
 };
 
 const App = () => {
-    const GENERATORS = [ COMPONENTS.GENFILE ];
+    const GENERATORS = [ COMPONENTS.GENFILE, RECIPES.GENFILE ];
 
     const [ text, setText ] = useState(GENERATORS.map(() => undefined) as (JSX.Element | undefined)[]);
     const [ done, setDone ] = useState(GENERATORS.map(() => <Spinner />) as JSX.Element[]);

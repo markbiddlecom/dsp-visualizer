@@ -3,8 +3,8 @@ import { JSDOM } from "jsdom";
 import React from "react";
 import { Text } from "ink";
 import { Generator, MessageFunction } from "./gen-files";
+import { WIKI } from "./consts";
 
-const WIKI = "https://dsp-wiki.com";
 const ITEMS_PAGE = `${WIKI}/Items`;
 const TABLE_ROW_ORDER = [
     "RawComponents",
@@ -21,9 +21,9 @@ const TABLE_ROW_ORDER = [
     "FabricationComponents"
 ];
 
-type Srcset = { src: string, size: number }[];
+export type Srcset = { src: string, size: number }[];
 
-type ComponentCell = {
+export type ComponentCell = {
     table: string,
     key: string,
     tableRow: string,
@@ -89,7 +89,7 @@ function componentCells(document: Document, table: string, rowOffset: number, se
     return loadTrTags().map(cellsFromTrs).reduce((arr, cells) => arr.concat(cells), []);
 }
 
-function generate(messageFunction: MessageFunction): Promise<string> {
+export function loadComponentCells(messageFunction: MessageFunction) {
     messageFunction(<Text color="green" dimColor>Fetching <Text inverse> {ITEMS_PAGE} </Text>...</Text>);
     return fetch(ITEMS_PAGE)
         .then(response => response.text())
@@ -110,31 +110,17 @@ function generate(messageFunction: MessageFunction): Promise<string> {
                     "#mw-content-text > div.mw-parser-output > div > table:nth-child(8) > tbody > tr"
                 ))
                 .sort((c1, c2) => c1.key.localeCompare(c2.key)),
-        )
+        );
+}
+
+function generate(messageFunction: MessageFunction): Promise<string> {
+    return loadComponentCells(messageFunction)
         .then(components => `
-            import { RecipeKey } from "./recipes";
+            import { Component, ComponentKey, ComponentTableOrder, TableRowOrder } from "./components";
 
-            export enum ComponentTableOrder {
-                Components,
-                Buildings,
+            interface KeyedComponent<KEY extends ComponentKey> extends Component {
+                readonly key: KEY;
             }
-
-            export enum TableRowOrder {
-                RawComponents = 10,
-                RefinedComponents = 20,
-                BasicComponents = 30,
-                IntermediateComponents1 = 40,
-                IntermediateComponents2 = 50,
-                AdvancedComponents1 = 60,
-                AdvancedComponents2 = 70,
-
-                PowerBuildings = 1010,
-                LogisticComponents = 1020,
-                SourceComponents = 1030,
-                FabricationComponents = 1040,
-            }
-
-            export type ComponentCoordinates = readonly [ ComponentTableOrder, TableRowOrder, number ];
 
             export enum ComponentKeyNames {
                 ${components
@@ -142,21 +128,6 @@ function generate(messageFunction: MessageFunction): Promise<string> {
                     .join(",")
                 }
             };
-
-            export type ComponentKey = keyof typeof ComponentKeyNames;
-
-            export interface Component {
-                readonly key: ComponentKey;
-                readonly name: string;
-                readonly href: string;
-                readonly iconHref: string;
-                readonly coordinates: ComponentCoordinates,
-                readonly recipes: Readonly<Set<RecipeKey>>;
-            };
-
-            interface KeyedComponent<KEY extends ComponentKey> extends Component {
-                readonly key: KEY;
-            }
 
             const COMPONENTS: Readonly<{ [C in ComponentKey]: Readonly<KeyedComponent<C>> }> = {
                 ${components
@@ -166,7 +137,7 @@ function generate(messageFunction: MessageFunction): Promise<string> {
                             name: "${c.title}",
                             href: "${WIKI}${c.href}",
                             iconHref: "${WIKI}${(c.srcset || []).sort((a, b) => b.size - a.size).map(s => s.src)[0] || ""}",
-                            coordinates: [ ComponentTableOrder.${c.table}, TableRowOrder.${c.tableRow}, ${c.cellIndex * 10} ],
+                            coordinates: [ ComponentTableOrder.${c.table}, TableRowOrder.${c.tableRow}, ${(c.cellIndex + 1) * 10} ],
                             recipes: new Set([])
                         },
                     `)

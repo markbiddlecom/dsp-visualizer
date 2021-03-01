@@ -4,7 +4,6 @@
         "inlineSourceMap": true,
         "inlineSources": true,
         "lib": [ "esnext", "dom" ],
-        "listEmittedFiles": true,
         "module": "CommonJS",
         "noEmit": false,
         "outDir": "bin/publish"
