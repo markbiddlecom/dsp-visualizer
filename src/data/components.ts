@@ -6,18 +6,18 @@ export enum ComponentTableOrder {
 }
 
 export enum TableRowOrder {
-  RawComponents,
-  RefinedComponents,
-  BasicComponents,
-  IntermediateComponents1,
-  IntermediateComponents2,
-  AdvancedComponents1,
-  AdvancedComponents2,
+  RawComponents = 10,
+  RefinedComponents = 20,
+  BasicComponents = 30,
+  IntermediateComponents1 = 40,
+  IntermediateComponents2 = 50,
+  AdvancedComponents1 = 60,
+  AdvancedComponents2 = 70,
 
-  PowerBuildings,
-  LogisticComponents,
-  SourceComponents,
-  FabricationComponents,
+  PowerBuildings = 1010,
+  LogisticComponents = 1020,
+  SourceComponents = 1030,
+  FabricationComponents = 1040,
 }
 
 export type ComponentCoordinates = readonly [ ComponentTableOrder, TableRowOrder, number ];
@@ -26,11 +26,13 @@ export enum ComponentKeyNames {
   AssemblingMachineMkII,
   AssemblingMachineMkIII,
   CircuitBoard,
+  Coal,
   CopperIngot,
   CopperOre,
   CrystalSilicon,
   DeuteronFuelRod,
   ElectromagneticMatrix,
+  EnergeticGraphite,
   EnergyMatrix,
   Foundation,
   FractalSilicon,
@@ -51,10 +53,12 @@ export enum ComponentKeyNames {
   SmallCarrierRocket,
   Smelter,
   Steel,
+  Stone,
   StoneBrick,
   StructureMatrix,
   TitaniumAlloy,
   TitaniumOre,
+  Water,
   WirelessPowerTower,
 }
 
@@ -98,6 +102,14 @@ const COMPONENTS: Readonly<{ [C in ComponentKey]: Readonly<KeyedComponent<C>> }>
     coordinates: [ ComponentTableOrder.Components, TableRowOrder.IntermediateComponents1, 20 ],
     recipes: new Set([]),
   },
+  Coal: {
+    key: "Coal",
+    name: "Coal",
+    href: "https://dsp-wiki.com/Coal",
+    iconHref: "https://dsp-wiki.com/images/a/a2/Icon_Coal.png",
+    coordinates: [ ComponentTableOrder.Components, TableRowOrder.RefinedComponents, 40 ],
+    recipes: new Set([]),
+  },
   CopperIngot: {
     key: "CopperIngot",
     name: "Copper Ingot",
@@ -136,6 +148,14 @@ const COMPONENTS: Readonly<{ [C in ComponentKey]: Readonly<KeyedComponent<C>> }>
     href: "https://dsp-wiki.com/Electromagnetic_Matrix",
     iconHref: "https://dsp-wiki.com/images/0/0f/Icon_Electromagnetic_Matrix.png",
     coordinates: [ ComponentTableOrder.Components, TableRowOrder.AdvancedComponents2, 10 ],
+    recipes: new Set([]),
+  },
+  EnergeticGraphite: {
+    key: "EnergeticGraphite",
+    name: "Energetic Graphite",
+    href: "https://dsp-wiki.com/Energetic_Graphite",
+    iconHref: "https://dsp-wiki.com/images/1/11/Icon_Energetic_Graphite.png",
+    coordinates: [ ComponentTableOrder.Components, TableRowOrder.RefinedComponents, 40 ],
     recipes: new Set([]),
   },
   EnergyMatrix: {
@@ -298,6 +318,14 @@ const COMPONENTS: Readonly<{ [C in ComponentKey]: Readonly<KeyedComponent<C>> }>
     coordinates: [ ComponentTableOrder.Components, TableRowOrder.IntermediateComponents1, 10 ],
     recipes: new Set([]),
   },
+  Stone: {
+    key: "Stone",
+    name: "Stone",
+    href: "https://dsp-wiki.com/Stone",
+    iconHref: "https://dsp-wiki.com/images/5/5a/Icon_Stone.png",
+    coordinates: [ ComponentTableOrder.Components, TableRowOrder.RefinedComponents, 30 ],
+    recipes: new Set([]),
+  },
   StoneBrick: {
     key: "StoneBrick",
     name: "Stone Brick",
@@ -328,6 +356,14 @@ const COMPONENTS: Readonly<{ [C in ComponentKey]: Readonly<KeyedComponent<C>> }>
     href: "https://dsp-wiki.com/Titanium_Ore",
     iconHref: "https://dsp-wiki.com/images/9/91/Icon_Titanium_Ore.png",
     coordinates: [ ComponentTableOrder.Components, TableRowOrder.RawComponents, 60 ],
+    recipes: new Set([]),
+  },
+  Water: {
+    key: "Water",
+    name: "Water",
+    href: "https://dsp-wiki.com/Water",
+    iconHref: "https://dsp-wiki.com/images/6/65/Icon_Water.png",
+    coordinates: [ ComponentTableOrder.Components, TableRowOrder.RawComponents, 70 ],
     recipes: new Set([]),
   },
   WirelessPowerTower: {

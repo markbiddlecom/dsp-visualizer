@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "lib": [ "esnext", "dom" ],
+        "listEmittedFiles": true,
+        "module": "CommonJS",
+        "noEmit": false,
+        "outDir": "bin/publish"
+    },
+    "include": [ "bin" ],
+    "exclude": [ "bin/publish" ]
+}
