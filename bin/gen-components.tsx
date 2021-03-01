@@ -126,7 +126,7 @@ function generate(messageFunction: MessageFunction): Promise<string> {
                 ${components
                     .map(c => c.key)
                     .join(",")
-                }
+                },
             };
 
             const COMPONENTS: Readonly<{ [C in ComponentKey]: Readonly<KeyedComponent<C>> }> = {
