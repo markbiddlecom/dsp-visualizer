@@ -25,7 +25,7 @@ function generate(msg: MessageFunction): Promise<string> {
       }${recipe.outputs.map(output => `${output.component}: ${output.amount},`).join("")
       }},
         buildings: [${recipe.buildings.map(b => `"${b}"`).join(",")}],
-          prerequisites: [${recipe.technologies.map(t => `"${t}"`).join(",")}],
+          prerequisites: [${recipe.technologies.map(t => `"${t.name}"`).join(",")}],
         }),
       `).join("")}
       };

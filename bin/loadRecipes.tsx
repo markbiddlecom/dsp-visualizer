@@ -5,11 +5,17 @@ import React from "react";
 import { JSDOM } from "jsdom";
 import fetch from "node-fetch";
 import { WIKI } from "./consts";
-import { arrDiff, findParent, Truthy } from './bin-util';
+import { arrDiff, createBatchingPromise, findParent, Truthy } from './bin-util';
 
 export type RecipeComponent = {
   component: string,
   amount: number,
+}
+
+export type BasicTechnologyInfo = {
+  name: string,
+  href: string,
+  iconHref: string,
 }
 
 export type Recipe = {
@@ -17,7 +23,7 @@ export type Recipe = {
   outputs: RecipeComponent[],
   productionTime: number,
   buildings: string[],
-  technologies: string[],
+  technologies: BasicTechnologyInfo[],
   equals(other: Recipe): boolean,
 };
 
@@ -66,50 +72,23 @@ export const loadRecipes = (new class {
   }
 
   private execPages(components: ComponentCell[]): Promise<ComponentPage[]> {
-    const BATCH_SIZE = 3;
-    const batches: ComponentCell[][] = [];
-
-    while (components.length) {
-      const batch: ComponentCell[] = [];
-      batches.push(batch);
-      for (let i = 0; i < BATCH_SIZE && components.length; i++) {
-        const toPush = components.shift();
-        if (toPush) { batch.push(toPush); }
-      }
-    }
-
-    const parsedComponentPages: ComponentPage[] = [];
-
-    const fetchNextBatch = async (): Promise<ComponentPage[]> => {
-      const nextBatch = batches.shift();
-      if (!nextBatch || batches.length < 30) {
-        return Promise.resolve(parsedComponentPages);
-      }
-
-      this.broadcast(<Text color="green">Fetching recipes for {
-        nextBatch.map((component, index) => <Text key={component.key}>
-          <Text inverse> {component.href} </Text>
-          {index < nextBatch.length - 1 && ", "}
-          {index === nextBatch.length - 2 && "and "}
-        </Text>)
-      }...</Text>);
-
-      const pages = await Promise.all(
-        nextBatch.map(component =>
-          fetch(`${WIKI}${component.href}`)
-            .then(response => response.text())
-            .then(text => ({
-              doc: new JSDOM(text).window.document,
-              ...component
-            }))
-        )
-      );
-      pages.forEach(page => parsedComponentPages.push(page));
-
-      return await fetchNextBatch();
-    }
-
-    return fetchNextBatch();
+    return createBatchingPromise({
+      items: components,
+      processFunction: component =>
+        fetch(`${WIKI}${component.href}`)
+          .then(response => response.text())
+          .then(text => ({ doc: new JSDOM(text).window.document, ...component })),
+      onBatchStart: (items, remaining) => {
+        this.broadcast(<Text color="green">Fetching recipes for {
+          items.map((component, index) => <Text key={component.key}>
+            <Text inverse> {component.href} </Text>
+            {index < items.length - 1 && ", "}
+            {index === items.length - 2 && "and "}
+          </Text>)
+        }...</Text>);
+        return remaining.length <= 30;
+      },
+    });
   }
 
   private execRecipes(): Promise<ComponentWithRecipes[]> {
@@ -140,7 +119,7 @@ export const loadRecipes = (new class {
     if (recipe.outputs.length === 1) {
       baseName = recipe.outputs[0].component;
     } else if (recipe.technologies.length === 1) {
-      baseName = recipe.technologies[0];
+      baseName = recipe.technologies[0].name;
     } else {
       baseName = "Production Recipe";
     }
@@ -152,7 +131,7 @@ export const loadRecipes = (new class {
 
     let refinedName: string = baseName;
     if (matchingRecipe && recipe.buildings.length) {
-      let discriminator = arrDiff(recipe.technologies, matchingRecipe.technologies)[0];
+      let discriminator = arrDiff(recipe.technologies.map(t => t.name), matchingRecipe.technologies.map(t => t.name))[0];
       if (!discriminator) {
         discriminator = arrDiff(recipe.buildings, matchingRecipe.buildings)[0];
       }
@@ -193,14 +172,16 @@ function parseRecipeComponent(componentDiv: Element): RecipeComponent | undefine
   } : undefined;
 }
 
-function parseRecipeBuilding(a: Element) {
-  return ((a as any).title as string | undefined)?.replace(/[^a-z0-9]/ig, "");
+function parseRecipeBuilding(a?: Element) {
+  return ((a as any)?.title as string | undefined)?.replace(/[^a-z0-9]/ig, "");
 };
 
-function parseRecipeTechnology(a: Element) {
-  return ((a as any).title as string | undefined)
-    ?.replace(/\s*\(Tech(nology)?\)$/i, "")
-    .replace(/[^a-z0-9]/ig, "");
+function parseRecipeTechnology(a?: Element): BasicTechnologyInfo | undefined {
+  let name = ((a as any)?.title as string | undefined)?.replace(/\s*\(Tech(nology)?\)$/i, "").replace(/[^a-z0-9]/ig, "");
+  let href = ((a as any)?.href as string | undefined);
+  let iconHref = (a.firstChild as any)?.src as string | undefined;
+
+  return name && href && iconHref && { name, href, iconHref };
 }
 
 function parseRecipe(recipeDiv: Element): Recipe | undefined {
@@ -238,7 +219,7 @@ function parseRecipe(recipeDiv: Element): Recipe | undefined {
       .map(parseRecipeTechnology)
       .filter(Truthy)
       .sort(),
-    equals: this.recipeEquals
+    equals: recipeEquals
   };
 }
 
