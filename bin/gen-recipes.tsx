@@ -15,7 +15,7 @@ function generate(msg: MessageFunction): Promise<string> {
         ${Array.from(recipes.values()).map(recipe => recipe.key + ",").sort().join("")}
       };
 
-      const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
+      const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<R>> }> = {
         ${Array.from(recipes.values()).sort((a, b) => a.key.localeCompare(b.key)).map(recipe => `
           ${recipe.key}: new StandardRecipe({
             key: "${recipe.key}",
@@ -25,7 +25,7 @@ function generate(msg: MessageFunction): Promise<string> {
       }${recipe.outputs.map(output => `${output.component}: ${output.amount},`).join("")
       }},
         buildings: [${recipe.buildings.map(b => `"${b}"`).join(",")}],
-          prerequisites: [${recipe.technologies.map(t => `"${t.name}"`).join(",")}],
+          prerequisites: [${recipe.technologies.map(t => `"${t.key}"`).join(",")}],
         }),
       `).join("")}
       };

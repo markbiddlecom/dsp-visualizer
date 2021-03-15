@@ -1,10 +1,13 @@
-import fetch from "node-fetch";
+import React from "react";
 import { JSDOM } from "jsdom";
 import { Text } from "ink";
 import { MessageFunction } from "./gen-files";
 import { WIKI } from "./consts";
+import { nameToKey } from './bin-util';
+import { fetchAndCache } from './fetchAndCache';
 
-const ITEMS_PAGE = `${WIKI}/Items`;
+const ITEMS_PATH = "/Items";
+const ITEMS_PAGE = `${WIKI}${ITEMS_PATH}`;
 const TABLE_ROW_ORDER = [
   "RawComponents",
   "RefinedComponents",
@@ -73,7 +76,7 @@ function componentCells(document: Document, table: string, rowOffset: number, se
 
         return {
           table,
-          key: title.replace(/[^a-z0-9]/ig, ""),
+          key: nameToKey(title),
           tableRow: TABLE_ROW_ORDER[rowOffset + trIndex],
           td: cell,
           cellIndex,
@@ -88,45 +91,52 @@ function componentCells(document: Document, table: string, rowOffset: number, se
   return loadTrTags().map(cellsFromTrs).reduce((arr, cells) => arr.concat(cells), []);
 }
 
-export const loadComponentCells = (new class {
-  private responseTextPromise: Promise<string> | undefined = undefined;
-  private docPromise: Promise<Document> | undefined = undefined;
-  private parsePromise: Promise<ComponentCell[]> | undefined = undefined;
+export const loadComponentCells: (messageFunction: MessageFunction) => Promise<ComponentCell[]> = (function() {
+  class Loader {
+    private responseTextPromise: Promise<string> | undefined = undefined;
+    private docPromise: Promise<Document> | undefined = undefined;
+    private parsePromise: Promise<ComponentCell[]> | undefined = undefined;
 
-  private memoizeFetch(): Promise<string> {
-    return this.responseTextPromise ||
-      (this.responseTextPromise = fetch(ITEMS_PAGE).then(response => response.text()));
+    private memoizeFetch(): Promise<string> {
+      return this.responseTextPromise ||
+        (this.responseTextPromise = fetchAndCache(ITEMS_PAGE, ITEMS_PATH));
+    }
+
+    private memoizeDoc(): Promise<Document> {
+      return this.docPromise || (this.docPromise = this.memoizeFetch().then(text => new JSDOM(text).window.document));
+    }
+
+    private memoizeParse(): Promise<ComponentCell[]> {
+      return this.parsePromise || (this.parsePromise = this.memoizeDoc().then(
+        document =>
+          componentCells(
+            document,
+            "Components",
+            0,
+            "#mw-content-text > div.mw-parser-output > div > table:nth-child(5) > tbody > tr"
+          )
+          .concat(componentCells(
+            document,
+            "Buildings",
+            7,
+            "#mw-content-text > div.mw-parser-output > div > table:nth-child(8) > tbody > tr"
+          ))
+          .sort((c1, c2) => c1.key.localeCompare(c2.key))
+      ));
+    }
+
+    async runWithMessage(messageFunction: MessageFunction): Promise<ComponentCell[]> {
+      messageFunction(<Text color="green" dimColor>Fetching <Text inverse> {ITEMS_PAGE} </Text>...</Text>);
+      await this.memoizeFetch();
+
+      messageFunction(<Text>Parsing DOM...</Text>);
+      await this.memoizeDoc();
+
+      messageFunction(<Text>Processing Components...</Text>);
+      return await this.memoizeParse();
+    }
   }
 
-  private memoizeDoc(): Promise<Document> {
-    return this.docPromise || (this.docPromise = this.memoizeFetch().then(text => new JSDOM(text).window.document));
-  }
-
-  private memoizeParse(): Promise<ComponentCell[]> {
-    return this.parsePromise || (this.parsePromise = Promise.resolve(
-      componentCells(
-        document,
-        "Components",
-        0,
-        "#mw-content-text > div.mw-parser-output > div > table:nth-child(5) > tbody > tr"
-      ).concat(componentCells(
-        document,
-        "Buildings",
-        7,
-        "#mw-content-text > div.mw-parser-output > div > table:nth-child(8) > tbody > tr"
-      ))
-        .sort((c1, c2) => c1.key.localeCompare(c2.key))
-    ));
-  }
-
-  async runWithMessage(messageFunction: MessageFunction): Promise<ComponentCell[]> {
-    messageFunction(<Text color="green" dimColor>Fetching <Text inverse> {ITEMS_PAGE} </Text>...</Text>);
-    await this.memoizeFetch();
-
-    messageFunction(<Text>Parsing DOM...</Text>);
-    await this.memoizeDoc();
-
-    messageFunction(<Text>Processing Components...</Text>);
-    return await this.memoizeParse();
-  }
-}()).runWithMessage;
+  const bindTarget = new Loader();
+  return bindTarget.runWithMessage.bind(bindTarget);
+})();

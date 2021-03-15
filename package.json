@@ -14,7 +14,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "build-bin": "npx tsc --project tsconfig-bin.json",
-    "genfiles": "npm run build-bin && node bin/publish/gen-files.js"
+    "genfiles": "npm run build-bin && env NODE_V8_COVERAGE=bin/publish node -r source-map-support/register bin/publish/gen-files.js bin/publish/cache"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -49,6 +49,7 @@
     "node-fetch": "^2.6.1",
     "prettier": "^2.2.1",
     "react-scripts": "4.0.2",
+    "source-map-support": "^0.5.19",
     "typescript": "^3.8.3"
   }
 }

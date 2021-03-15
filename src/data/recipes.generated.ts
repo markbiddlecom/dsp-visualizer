@@ -10,6 +10,7 @@ export enum RecipeKeyNames {
   AnnihilationConstraintSphere,
   AntimatterFuelRod,
   AppliedSuperconductor,
+  AppliedSuperconductorVersion2,
   ArtificialStar,
   AssemblingMachineMkI,
   AssemblingMachineMkII,
@@ -31,10 +32,12 @@ export enum RecipeKeyNames {
   CrystalSiliconCrystalSmelting,
   Deuterium,
   DeuteriumDeuteriumFractionation,
+  DeuteriumDeuteriumFractionationVersion2,
   DeuteronFuelRod,
   Diamond,
   DiamondEnergeticGraphite,
   DiracInversionMechanism,
+  DiracInversionMechanismVersion2,
   DysonSphereComponent,
   EMRailEjector,
   ElectricMotor,
@@ -79,7 +82,7 @@ export enum RecipeKeyNames {
   OpticalGratingCrystal,
   OrbitalCollector,
   OrganicCrystal,
-  OrganicCrystalPlastic,
+  OrganicCrystalChemicalPlant,
   OrganicCrystalPolymerChemicalEngineering,
   ParticleBroadband,
   ParticleContainer,
@@ -90,6 +93,7 @@ export enum RecipeKeyNames {
   PlanetaryLogisticsStation,
   PlasmaExciter,
   PlasmaExtractRefining,
+  PlasmaExtractRefiningVersion2,
   Plastic,
   Prism,
   Processor,
@@ -137,9 +141,11 @@ export enum RecipeKeyNames {
   WindTurbine,
   WirelessPowerTower,
   XRayCracking,
+  XRayCrackingVersion2,
+  XRayCrackingVersion3,
 }
 
-const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
+const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<R>> }> = {
   Accumulator: new StandardRecipe({
     key: "Accumulator",
     name: "Accumulator",
@@ -175,7 +181,16 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   AppliedSuperconductor: new StandardRecipe({
     key: "AppliedSuperconductor",
-    name: "AppliedSuperconductor",
+    name: "Applied Superconductor",
+    productionTime: new Time(2, TimeUnit.SECONDS),
+    components: { FireIce: -2, Graphene: 2, Hydrogen: 1 },
+    buildings: ["ChemicalPlant"],
+    prerequisites: ["AppliedSuperconductor"],
+  }),
+
+  AppliedSuperconductorVersion2: new StandardRecipe({
+    key: "AppliedSuperconductorVersion2",
+    name: "Applied Superconductor; Version 2",
     productionTime: new Time(2, TimeUnit.SECONDS),
     components: { FireIce: -2, Graphene: 2, Hydrogen: 1 },
     buildings: ["ChemicalPlant"],
@@ -352,7 +367,7 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   CrystalSiliconCrystalSmelting: new StandardRecipe({
     key: "CrystalSiliconCrystalSmelting",
-    name: "CrystalSilicon (CrystalSmelting)",
+    name: "CrystalSilicon (Crystal Smelting)",
     productionTime: new Time(4, TimeUnit.SECONDS),
     components: { FractalSilicon: -1, CrystalSilicon: 1 },
     buildings: ["AssemblingMachineMkI", "AssemblingMachineMkII", "AssemblingMachineMkIII"],
@@ -370,11 +385,20 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   DeuteriumDeuteriumFractionation: new StandardRecipe({
     key: "DeuteriumDeuteriumFractionation",
-    name: "Deuterium (DeuteriumFractionation)",
+    name: "Deuterium (Deuterium Fractionation)",
     productionTime: new Time(5, TimeUnit.SECONDS),
     components: { Hydrogen: -10, Deuterium: 5 },
     buildings: ["MiniatureParticleCollider"],
     prerequisites: ["MiniatureParticleCollider"],
+  }),
+
+  DeuteriumDeuteriumFractionationVersion2: new StandardRecipe({
+    key: "DeuteriumDeuteriumFractionationVersion2",
+    name: "Deuterium (Deuterium Fractionation); Version 2",
+    productionTime: new Time(NaN, TimeUnit.SECONDS),
+    components: { Deuterium: 1 },
+    buildings: ["OrbitalCollector"],
+    prerequisites: ["GasGiantsExploitation"],
   }),
 
   DeuteronFuelRod: new StandardRecipe({
@@ -406,7 +430,16 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   DiracInversionMechanism: new StandardRecipe({
     key: "DiracInversionMechanism",
-    name: "DiracInversionMechanism",
+    name: "Dirac Inversion Mechanism",
+    productionTime: new Time(2, TimeUnit.SECONDS),
+    components: { CriticalPhoton: -2, Antimatter: 2, Hydrogen: 2 },
+    buildings: ["MiniatureParticleCollider"],
+    prerequisites: ["DiracInversionMechanism"],
+  }),
+
+  DiracInversionMechanismVersion2: new StandardRecipe({
+    key: "DiracInversionMechanismVersion2",
+    name: "Dirac Inversion Mechanism; Version 2",
     productionTime: new Time(2, TimeUnit.SECONDS),
     components: { CriticalPhoton: -2, Antimatter: 2, Hydrogen: 2 },
     buildings: ["MiniatureParticleCollider"],
@@ -500,7 +533,7 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
     productionTime: new Time(1, TimeUnit.SECONDS),
     components: { FireIce: NaN },
     buildings: ["OrbitalCollector"],
-    prerequisites: [],
+    prerequisites: ["GasGiantsExploitation"],
   }),
 
   Foundation: new StandardRecipe({
@@ -749,7 +782,7 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
     components: {
       FrameMaterial: -20,
       Graphene: -10,
-      Processor: -5,
+      Processor: -8,
       SuperMagneticRing: -50,
       TitaniumAlloy: -20,
       MiniatureParticleCollider: 1,
@@ -833,18 +866,18 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
     prerequisites: ["PolymerChemicalEngineering"],
   }),
 
-  OrganicCrystalPlastic: new StandardRecipe({
-    key: "OrganicCrystalPlastic",
-    name: "OrganicCrystal (Plastic)",
+  OrganicCrystalChemicalPlant: new StandardRecipe({
+    key: "OrganicCrystalChemicalPlant",
+    name: "OrganicCrystal (ChemicalPlant)",
     productionTime: new Time(6, TimeUnit.SECONDS),
     components: { Log: -20, PlantFuel: -30, Water: -10, OrganicCrystal: 1 },
-    buildings: ["ChemicalPlant"],
+    buildings: ["AssemblingMachineMkI", "AssemblingMachineMkII", "AssemblingMachineMkIII"],
     prerequisites: ["PolymerChemicalEngineering"],
   }),
 
   OrganicCrystalPolymerChemicalEngineering: new StandardRecipe({
     key: "OrganicCrystalPolymerChemicalEngineering",
-    name: "OrganicCrystal (PolymerChemicalEngineering)",
+    name: "OrganicCrystal (Polymer Chemical Engineering)",
     productionTime: new Time(2, TimeUnit.SECONDS),
     components: { OrganicCrystalVein: -1, OrganicCrystal: 1 },
     buildings: ["MiningMachine"],
@@ -931,7 +964,16 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   PlasmaExtractRefining: new StandardRecipe({
     key: "PlasmaExtractRefining",
-    name: "PlasmaExtractRefining",
+    name: "Plasma Extract Refining",
+    productionTime: new Time(4, TimeUnit.SECONDS),
+    components: { CrudeOil: -2, Hydrogen: 1, RefinedOil: 2 },
+    buildings: ["OilRefinery"],
+    prerequisites: ["PlasmaExtractRefining"],
+  }),
+
+  PlasmaExtractRefiningVersion2: new StandardRecipe({
+    key: "PlasmaExtractRefiningVersion2",
+    name: "Plasma Extract Refining; Version 2",
     productionTime: new Time(4, TimeUnit.SECONDS),
     components: { CrudeOil: -2, Hydrogen: 1, RefinedOil: 2 },
     buildings: ["OilRefinery"],
@@ -1100,7 +1142,7 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   SpaceWarperGravitationalWaveRefraction: new StandardRecipe({
     key: "SpaceWarperGravitationalWaveRefraction",
-    name: "SpaceWarper (GravitationalWaveRefraction)",
+    name: "SpaceWarper (Gravitational Wave Refraction)",
     productionTime: new Time(10, TimeUnit.SECONDS),
     components: { GravityMatrix: -1, SpaceWarper: 8 },
     buildings: ["AssemblingMachineMkI", "AssemblingMachineMkII", "AssemblingMachineMkIII"],
@@ -1130,7 +1172,7 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
     name: "Steel",
     productionTime: new Time(3, TimeUnit.SECONDS),
     components: { IronIngot: -3, Steel: 1 },
-    buildings: ["AssemblingMachineMkI", "AssemblingMachineMkII", "AssemblingMachineMkIII"],
+    buildings: ["Smelter"],
     prerequisites: [],
   }),
 
@@ -1208,7 +1250,7 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   SulfuricAcidFluidStorageEncapsulation: new StandardRecipe({
     key: "SulfuricAcidFluidStorageEncapsulation",
-    name: "SulfuricAcid (FluidStorageEncapsulation)",
+    name: "SulfuricAcid (Fluid Storage Encapsulation)",
     productionTime: new Time(6, TimeUnit.SECONDS),
     components: { RefinedOil: -6, Stone: -8, Water: -4, SulfuricAcid: 4 },
     buildings: ["ChemicalPlant"],
@@ -1375,7 +1417,25 @@ const RECIPES: Readonly<{ [R in RecipeKey]: Readonly<KeyedRecipe<C>> }> = {
 
   XRayCracking: new StandardRecipe({
     key: "XRayCracking",
-    name: "XRayCracking",
+    name: "X-Ray Cracking",
+    productionTime: new Time(4, TimeUnit.SECONDS),
+    components: { Hydrogen: -2, RefinedOil: -1, EnergeticGraphite: 1, Hydrogen: 3 },
+    buildings: ["OilRefinery"],
+    prerequisites: ["XRayCracking"],
+  }),
+
+  XRayCrackingVersion2: new StandardRecipe({
+    key: "XRayCrackingVersion2",
+    name: "X-Ray Cracking; Version 2",
+    productionTime: new Time(4, TimeUnit.SECONDS),
+    components: { Hydrogen: -2, RefinedOil: -1, EnergeticGraphite: 1, Hydrogen: 3 },
+    buildings: ["OilRefinery"],
+    prerequisites: ["XRayCracking"],
+  }),
+
+  XRayCrackingVersion3: new StandardRecipe({
+    key: "XRayCrackingVersion3",
+    name: "X-Ray Cracking; Version 3",
     productionTime: new Time(4, TimeUnit.SECONDS),
     components: { Hydrogen: -2, RefinedOil: -1, EnergeticGraphite: 1, Hydrogen: 3 },
     buildings: ["OilRefinery"],

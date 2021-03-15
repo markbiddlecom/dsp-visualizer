@@ -59,3 +59,37 @@ export function createBatchingPromise<ITEM, OUTPUT>({
 
   return fetchNextBatch();
 }
+
+export function identity<T>(): (t: T) => T {
+  return i => i;
+}
+
+export function toFlattenedArray<T>(): (combined: T[], arr: T[]) => T[] {
+  return (combined, arr) => combined.concat(arr);
+}
+
+export function toMap<I, K, V>(
+  keyFunction: (item: I) => K,
+  valueFunction: (item: I) => V,
+  mergeFunction: (firstValue: V, secondValue: V) => V = identity(),
+): (map: Map<K, V>, item: I) => Map<K, V> {
+  return (map, item) => {
+    const key = keyFunction(item);
+    const value = valueFunction(item);
+    const existing = map.get(key);
+    if (existing !== undefined) {
+      map.set(key, mergeFunction(existing, value));
+    } else {
+      map.set(key, value);
+    }
+    return map;
+  };
+}
+
+export function toMapByKey<K, V>(keyFunction: (value: V) => K): (map: Map<K, V>, value: V) => Map<K, V> {
+  return toMap(keyFunction, identity());
+}
+
+export function nameToKey(title: string): string {
+  return title.replace(/[^a-z0-9]/ig, "");
+}

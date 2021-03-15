@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 
 import * as COMPONENTS from "./gen-components";
 import * as RECIPES from "./gen-recipes";
+import * as TECHNOLOGIES from "./gen-technologies";
 
 export type Generator = {
     file: string,
@@ -44,7 +45,7 @@ const Spinner = () => {
 };
 
 const App = () => {
-    const GENERATORS = [ COMPONENTS.GENFILE, RECIPES.GENFILE ];
+    const GENERATORS = [ COMPONENTS.GENFILE, RECIPES.GENFILE, TECHNOLOGIES.GENFILE ];
 
     const [ text, setText ] = useState(GENERATORS.map(() => undefined) as (JSX.Element | undefined)[]);
     const [ done, setDone ] = useState(GENERATORS.map(() => <Spinner />) as JSX.Element[]);
