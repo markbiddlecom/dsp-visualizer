@@ -1,5 +1,5 @@
-import { identityFunction } from '../util/identityFunction';
-import { Recipe, TimedRecipe } from './recipes';
+import { identityFunction } from "../util/identityFunction";
+import { Recipe, TimedRecipe } from "./recipes";
 
 export type RecipeMod = (input: Recipe) => Readonly<Recipe>;
 
@@ -11,6 +11,6 @@ export function makeRecipeModifer(propertyMods: Partial<RecipeMaps>): RecipeMod 
   return recipe => Object.fromEntries(
     Object
       .entries(recipe)
-      .map(([property, value]) => [property, ((propertyMods as any)[property] || identityFunction())(value)])
+      .map(([property, value]) => [property, ((propertyMods as any)[property] || identityFunction())(value)]),
   ) as Readonly<Recipe>;
 }

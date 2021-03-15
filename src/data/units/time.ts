@@ -1,8 +1,9 @@
-import { Dimension, ScalarBase, Unit } from './units';
+import { Dimension, ScalarBase, Unit } from "./units";
 
-export interface TimeUnit extends Unit<Dimension.Time, Time> {}
+export type TimeUnit = Unit<Dimension.Time, Time>
 
-export module TimeUnit {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace TimeUnit {
   export const SECONDS: TimeUnit = {
     name: "seconds",
     symbol: "s",
@@ -42,7 +43,7 @@ export class Time extends ScalarBase<Dimension.Time, Time> {
     super(firstArg, unit);
   }
 
-  protected construct(amount: number, unit: TimeUnit) {
+  protected construct(amount: number, unit: TimeUnit): Time {
     return new Time(amount, unit);
   }
 
@@ -54,7 +55,7 @@ export class Time extends ScalarBase<Dimension.Time, Time> {
     return this.of(seconds, TimeUnit.SECONDS);
   }
 
-  static of(amount: number, unit: TimeUnit = TimeUnit.SECONDS) {
+  static of(amount: number, unit: TimeUnit = TimeUnit.SECONDS): Time {
     return new Time(amount, unit);
   }
 }

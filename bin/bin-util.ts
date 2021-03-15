@@ -1,9 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const Truthy: <T>(x: T | undefined) => x is T = Boolean as any;
 
-export function arrDiff<T>(arr1: T[], arr2: T[]) {
+export function arrDiff<T>(arr1: T[], arr2: T[]): T[] {
   const arr1Set = new Set(arr1);
   const result: T[] = [];
-  for (let t of arr2) {
+  for (const t of arr2) {
     if (!arr1Set.has(t)) {
       result.push(t);
     }
@@ -11,23 +12,24 @@ export function arrDiff<T>(arr1: T[], arr2: T[]) {
   return result;
 }
 
-export function findParent(elem: Element | undefined, nodeName: string) {
+export function findParent(elem: Element | undefined, nodeName: string): Element | undefined {
   while (elem && elem.nodeName !== nodeName) {
     elem = elem.parentElement || undefined;
   }
   return elem;
-};
+}
 
 export type CreateBatchingPromiseArgs<ITEM, OUTPUT> = {
   items: ITEM[],
   processFunction: (item: ITEM) => Promise<OUTPUT>,
   batchSize?: number,
   onBatchStart?: (items: ITEM[], remainingBatches: ITEM[][]) => boolean,
-  onBatchFinish?: (items: ITEM[], batchOutput: OUTPUT[], previousOutput: OUTPUT[], remainingBatches: ITEM[][]) => boolean,
+  onBatchFinish?:
+    (items: ITEM[], batchOutput: OUTPUT[], previousOutput: OUTPUT[], remainingBatches: ITEM[][]) => boolean,
 };
 
 export function createBatchingPromise<ITEM, OUTPUT>({
-  items, processFunction, batchSize = 3, onBatchStart = () => true, onBatchFinish = () => true
+  items, processFunction, batchSize = 3, onBatchStart = () => true, onBatchFinish = () => true,
 }: CreateBatchingPromiseArgs<ITEM, OUTPUT>): Promise<OUTPUT[]> {
   const batches: ITEM[][] = [];
 

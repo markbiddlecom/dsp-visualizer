@@ -1,20 +1,22 @@
-import { RecipeMod, makeRecipeModifer } from './recipeMods';
-import { Power, PowerUnit } from './units/power';
-import { SI } from './units/units';
+import { RecipeMod, makeRecipeModifer } from "./recipeMods";
+import { Power, PowerUnit } from "./units/power";
+import { SI } from "./units/units";
 
 export enum BuildingKeyNames {
   AssemblingMachineMkI,
   AssemblingMachineMkII,
   AssemblingMachineMkIII,
   ChemicalPlant,
+  EnergyExchanger,
   Fractionator,
   MatrixLab,
+  MiniatureParticleCollider,
   MiningMachine,
   OilExtractor,
   OilRefinery,
+  OrbitalCollector,
   Smelter,
   WaterPump,
-
 }
 
 export type BuildingKey = keyof typeof BuildingKeyNames;
@@ -74,6 +76,15 @@ const BUILDINGS: Readonly<{ [B in BuildingKey]: Readonly<KeyedBuilding<B>> }> = 
     idleConsumption: SI.KILO(PowerUnit.WATTS).of(24),
     recipeMods: [],
   },
+  EnergyExchanger: {
+    key: "EnergyExchanger",
+    name: "Energy Exchanger",
+    href: "https://dsp-wiki.com/Energy_Exchanger",
+    iconHref: "https://dsp-wiki.com/images/6/64/Icon_Energy_Exchanger.png",
+    workConsumption: PowerUnit.WATTS.of(0),
+    idleConsumption: PowerUnit.WATTS.of(0),
+    recipeMods: [],
+  },
   Fractionator: {
     key: "Fractionator",
     name: "Fractionator",
@@ -90,6 +101,15 @@ const BUILDINGS: Readonly<{ [B in BuildingKey]: Readonly<KeyedBuilding<B>> }> = 
     iconHref: "https://dsp-wiki.com/images/b/b7/Icon_Matrix_Lab.png",
     workConsumption: SI.KILO(PowerUnit.WATTS).of(480),
     idleConsumption: SI.KILO(PowerUnit.WATTS).of(12),
+    recipeMods: [],
+  },
+  MiniatureParticleCollider: {
+    key: "MiniatureParticleCollider",
+    name: "Miniature Particle Collider",
+    href: "https://dsp-wiki.com/Miniature_Particle_Collider",
+    iconHref: "https://dsp-wiki.com/images/a/aa/Icon_Miniature_Particle_Collider.png",
+    workConsumption: SI.MEGA(PowerUnit.WATTS).of(12),
+    idleConsumption: SI.KILO(PowerUnit.WATTS).of(120),
     recipeMods: [],
   },
   MiningMachine: {
@@ -117,6 +137,15 @@ const BUILDINGS: Readonly<{ [B in BuildingKey]: Readonly<KeyedBuilding<B>> }> = 
     iconHref: "https://dsp-wiki.com/images/7/74/Icon_Oil_Refinery.png",
     workConsumption: SI.KILO(PowerUnit.WATTS).of(960),
     idleConsumption: SI.KILO(PowerUnit.WATTS).of(24),
+    recipeMods: [],
+  },
+  OrbitalCollector: {
+    key: "OrbitalCollector",
+    name: "Orbital Collector",
+    href: "https://dsp-wiki.com/Orbital_Collector",
+    iconHref: "https://dsp-wiki.com/images/6/64/Icon_Orbital_Collector.png",
+    workConsumption: SI.MEGA(PowerUnit.WATTS).of(30),
+    idleConsumption: PowerUnit.WATTS.of(0),
     recipeMods: [],
   },
   Smelter: {

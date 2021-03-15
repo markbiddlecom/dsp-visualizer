@@ -1,11 +1,11 @@
-import { JSDOM } from 'jsdom';
+import { JSDOM } from "jsdom";
 import React from "react";
-import { createBatchingPromise, nameToKey, toFlattenedArray, toMapByKey, Truthy } from './bin-util';
-import { WIKI } from './consts';
-import { Generator, MessageFunction } from './gen-files';
-import { BasicTechnologyInfo, loadRecipes, Recipes } from './loadRecipes';
-import { Text } from 'ink';
-import { fetchAndCache } from './fetchAndCache';
+import { createBatchingPromise, nameToKey, toFlattenedArray, toMapByKey, Truthy } from "./bin-util";
+import { WIKI } from "./consts";
+import { Generator, MessageFunction } from "./gen-files";
+import { BasicTechnologyInfo, loadRecipes, Recipes } from "./loadRecipes";
+import { Text } from "ink";
+import { fetchAndCache } from "./fetchAndCache";
 
 type FullTechnologyInfo = BasicTechnologyInfo & {
   unlocks: string[];
@@ -19,7 +19,7 @@ function getTechnologiesToProcess(recipes: Recipes): BasicTechnologyInfo[] {
       .map(({technologies}) => technologies)
       .reduce(toFlattenedArray(), [])
       .reduce(toMapByKey(tech => tech.name), new Map())
-      .values()
+      .values(),
   );
 }
 
@@ -70,7 +70,7 @@ function generate(msg: MessageFunction): Promise<string> {
           </Text>)
         }...</Text>);
         return true;
-      }
+      },
     }))
     .then(technologies => technologies.filter(Truthy))
     .then(technologies => `
@@ -93,12 +93,8 @@ function generate(msg: MessageFunction): Promise<string> {
             href: "${WIKI}${tech.href}",
             iconHref: "${WIKI}${tech.iconHref}",
             prerequisites: new Set(),
-            unlocks: new Set([${
-              tech.unlocks.map(item => `"${item}",`,).join("\n")
-            }] as ComponentKey[]),
-            researchCost: {${
-              tech.consumption.map(component => `"${component.item}": ${component.amt},`).join("\n")
-            }},
+            unlocks: new Set([${tech.unlocks.map(item => `"${item}",`).join("\n")}] as ComponentKey[]),
+            researchCost: {${tech.consumption.map(component => `"${component.item}": ${component.amt},`).join("\n")}},
             dataVolume: ${tech.hashes}
           },
         `).join("\n")}

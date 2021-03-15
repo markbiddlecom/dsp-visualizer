@@ -1,7 +1,6 @@
-import { ItemRateUnit, ItemRate as ItemRateScalar } from './itemRate';
-import { TimeUnit, Time as TimeScalar } from './time';
-import { PowerUnit, Power as PowerScalar } from './power';
-import { createPrefix } from 'typescript';
+import { ItemRateUnit, ItemRate as ItemRateScalar } from "./itemRate";
+import { TimeUnit, Time as TimeScalar } from "./time";
+import { PowerUnit, Power as PowerScalar } from "./power";
 
 export interface Dimension<
   DIMENSION extends Dimension<DIMENSION, SCALAR>,
@@ -10,19 +9,20 @@ export interface Dimension<
   readonly standardUnit: Unit<DIMENSION, SCALAR>;
 }
 
-export module Dimension {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace Dimension {
   export class Time implements Dimension<Time, TimeScalar> {
-    get standardUnit() { return TimeUnit.SECONDS; }
+    get standardUnit(): TimeUnit { return TimeUnit.SECONDS; }
   }
   export const TIME = new Time();
 
   export class Power implements Dimension<Power, PowerScalar> {
-    get standardUnit() { return PowerUnit.WATTS; }
+    get standardUnit(): PowerUnit { return PowerUnit.WATTS; }
   }
   export const POWER = new Power();
 
   export class ItemRate implements Dimension<ItemRate, ItemRateScalar> {
-    get standardUnit() { return ItemRateUnit.ITEMS_PER_SECOND; }
+    get standardUnit(): ItemRateUnit { return ItemRateUnit.ITEMS_PER_SECOND; }
   }
   export const ITEM_RATE = new ItemRate();
 }
@@ -108,7 +108,7 @@ export abstract class ScalarBase<
 function makePrefixFactory(
   prefixName: string,
   prefixSymbol: string,
-  factor: number
+  factor: number,
 ) {
   return {
     createPrefixUnit<

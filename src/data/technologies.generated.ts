@@ -67,6 +67,7 @@ export enum TechnologyKeyNames {
   UniverseMatrix,
   VerticalLaunchingSilo,
   WaveFunctionInterference,
+  XRayCracking,
 }
 
 export const TECHNOLOGIES: Readonly<{ [T in TechnologyKey]: Readonly<KeyedTechnology<T>> }> = {
@@ -757,5 +758,16 @@ export const TECHNOLOGIES: Readonly<{ [T in TechnologyKey]: Readonly<KeyedTechno
       GravityMatrix: 2000,
     },
     dataVolume: 720000,
+  },
+
+  XRayCracking: {
+    key: "XRayCracking",
+    name: "X-Ray Cracking",
+    href: "https://dsp-wiki.com/X-Ray_Cracking_(Tech)",
+    iconHref: "https://dsp-wiki.com/images/3/34/Tech_X-Ray_Cracking.png",
+    prerequisites: new Set(),
+    unlocks: new Set(),
+    researchCost: {},
+    dataVolume: 0,
   },
 };

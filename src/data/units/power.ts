@@ -1,15 +1,16 @@
-import { Dimension, ScalarBase, Unit } from './units';
+import { Dimension, ScalarBase, Unit } from "./units";
 
-export interface PowerUnit extends Unit<Dimension.Power, Power> {};
+export type PowerUnit = Unit<Dimension.Power, Power>;
 
-export module PowerUnit {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace PowerUnit {
   export const WATTS: PowerUnit = {
     name: "watts",
     symbol: "W",
     dimension: Dimension.POWER,
     toStandardAmount(watts: number) { return watts; },
     fromStandardAmount(watts: number) { return watts; },
-    of(amount: number) { return new Power(amount, WATTS); }
+    of(amount: number) { return new Power(amount, WATTS); },
   };
 }
 
@@ -22,7 +23,7 @@ export class Power extends ScalarBase<Dimension.Power, Power> {
     super(firstArg, unit);
   }
 
-  protected construct(amount: number, unit: PowerUnit) {
+  protected construct(amount: number, unit: PowerUnit): Power {
     return new Power(amount, unit);
   }
 

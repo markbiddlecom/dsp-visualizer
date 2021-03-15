@@ -1,7 +1,7 @@
-import fetch, { Response } from 'node-fetch';
-import { join, dirname } from 'path';
-import { promises as fs } from 'fs';
-import { CACHE_DIR, CACHE_TIMEOUT_MS } from './consts';
+import fetch from "node-fetch";
+import { join, dirname } from "path";
+import { promises as fs } from "fs";
+import { CACHE_DIR, CACHE_TIMEOUT_MS } from "./consts";
 
 export async function fileExists(path: string): Promise<boolean> {
   try {

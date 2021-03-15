@@ -1,5 +1,5 @@
-import { TimeUnit } from './time';
-import { Dimension, ScalarBase, Unit } from './units';
+import { TimeUnit } from "./time";
+import { Dimension, ScalarBase, Unit } from "./units";
 
 export interface ItemRateUnit extends Unit<Dimension.ItemRate, ItemRate> {
   readonly timeUnit: TimeUnit;
@@ -18,7 +18,8 @@ function createItemRateUnit(timeUnit: TimeUnit): ItemRateUnit {
   return UNIT;
 }
 
-export module ItemRateUnit {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace ItemRateUnit {
   export const ITEMS_PER_SECOND = createItemRateUnit(TimeUnit.SECONDS);
   export const ITEMS_PER_MINUTE = createItemRateUnit(TimeUnit.MINUTES);
   export const ITEMS_PER_HOUR = createItemRateUnit(TimeUnit.HOURS);
@@ -33,7 +34,7 @@ export class ItemRate extends ScalarBase<Dimension.ItemRate, ItemRate> {
     super(firstArg, unit);
   }
 
-  protected construct(amount: number, unit: ItemRateUnit) {
+  protected construct(amount: number, unit: ItemRateUnit): ItemRate {
     return new ItemRate(amount, unit);
   }
 

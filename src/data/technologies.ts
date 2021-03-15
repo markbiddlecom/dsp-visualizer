@@ -1,5 +1,5 @@
 import { ComponentKey } from "./components";
-import { TECHNOLOGIES, TechnologyKeyNames } from './technologies.generated';
+import { TECHNOLOGIES, TechnologyKeyNames } from "./technologies.generated";
 
 export type UnitCount = number;
 export type Hashes = number;
@@ -14,6 +14,6 @@ export interface Technology {
   readonly unlocks: Readonly<Set<ComponentKey>>;
   readonly researchCost: Readonly<Partial<Record<ComponentKey, UnitCount>>>;
   readonly dataVolume: Hashes;
-};
+}
 
 export default TECHNOLOGIES;

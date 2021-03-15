@@ -1,8 +1,8 @@
-import { BuildingKey } from './buildings';
-import { ComponentKey } from './components';
-import RECIPES, { RecipeKeyNames } from './recipes.generated';
-import { TechnologyKey } from './technologies';
-import { Time } from './units/time';
+import { BuildingKey } from "./buildings";
+import { ComponentKey } from "./components";
+import RECIPES, { KeyedRecipe, RecipeKeyNames } from "./recipes.generated";
+import { TechnologyKey } from "./technologies";
+import { Time } from "./units/time";
 
 export type ProductionTime = number;
 
@@ -20,15 +20,17 @@ export interface TimedRecipe extends Recipe {
   readonly productionTime: Time;
 }
 
-export type StandardRecipeOptions = Omit<TimedRecipe, "buildings" | "inputs" | "outputs" | "prerequisites"> & {
-  key: RecipeKey,
-  buildings: BuildingKey[],
-  prerequisites: TechnologyKey[],
-  components: Partial<Record<ComponentKey, number>>,
-};
+export type StandardRecipeOptions<KEY extends RecipeKey>
+  = Omit<TimedRecipe, "buildings" | "inputs" | "outputs" | "prerequisites">
+    & {
+      key: KEY,
+      buildings: BuildingKey[],
+      prerequisites: TechnologyKey[],
+      components: Partial<Record<ComponentKey, number>>,
+    };
 
-export class StandardRecipe implements TimedRecipe {
-  readonly key: RecipeKey;
+export class StandardRecipe<KEY extends RecipeKey> implements TimedRecipe, KeyedRecipe<KEY> {
+  readonly key: KEY;
   readonly name: string;
   readonly buildings: Readonly<Set<BuildingKey>>;
   readonly prerequisites: Readonly<Set<TechnologyKey>>;
@@ -36,13 +38,14 @@ export class StandardRecipe implements TimedRecipe {
   readonly components: Readonly<Map<ComponentKey, number>>;
   readonly productionTime: Time;
 
-  constructor(opts: StandardRecipeOptions) {
+  constructor(opts: StandardRecipeOptions<KEY>) {
     this.key = opts.key;
     this.name = opts.name;
     this.prerequisites = new Set(opts.prerequisites);
     this.buildings = new Set(opts.buildings);
 
-    this.components = new Map(Object.entries(opts.components).filter(([, amt]) => Boolean(amt)) as [ComponentKey, number][]);
+    this.components =
+      new Map(Object.entries(opts.components).filter(([, amt]) => Boolean(amt)) as [ComponentKey, number][]);
     this.productionTime = opts.productionTime;
   }
 

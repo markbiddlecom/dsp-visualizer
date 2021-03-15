@@ -3,8 +3,8 @@ import { JSDOM } from "jsdom";
 import { Text } from "ink";
 import { MessageFunction } from "./gen-files";
 import { WIKI } from "./consts";
-import { nameToKey } from './bin-util';
-import { fetchAndCache } from './fetchAndCache';
+import { nameToKey, toMapByKey } from "./bin-util";
+import { fetchAndCache } from "./fetchAndCache";
 
 const ITEMS_PATH = "/Items";
 const ITEMS_PAGE = `${WIKI}${ITEMS_PATH}`;
@@ -20,20 +20,25 @@ const TABLE_ROW_ORDER = [
   "PowerBuildings",
   "LogisticComponents",
   "SourceComponents",
-  "FabricationComponents"
+  "FabricationComponents",
 ];
 
 export type Srcset = { src: string, size: number }[];
 
 export type ComponentCell = {
-  table: string,
-  key: string,
-  tableRow: string,
-  td: Node,
-  cellIndex: number,
-  title: string,
-  href: string,
-  srcset?: Srcset,
+  table: string;
+  key: string;
+  tableRow: string;
+  td: Node;
+  cellIndex: number;
+  title: string;
+  href: string;
+  srcset?: Srcset;
+};
+
+export type Components = {
+  cells: ComponentCell[];
+  cellsByKey: Map<string, ComponentCell>;
 };
 
 function componentCells(document: Document, table: string, rowOffset: number, selector: string): ComponentCell[] {
@@ -44,10 +49,10 @@ function componentCells(document: Document, table: string, rowOffset: number, se
   function getSrcsetFromDoc(document: Element, selector: string): Srcset | undefined {
     function getMatchingImgTags(): string[] {
       return [
-        (Array.from(document.querySelectorAll(selector)) as any[])
+        Array.from(document.querySelectorAll<HTMLImageElement>(selector))
           .map(({ src, srcset }) => `${src} 1x, ${srcset}`)
           .sort((a, b) => b.length - a.length)[0]
-        || undefined
+        || undefined,
       ]
         .filter(Boolean) as string[];
     }
@@ -69,10 +74,10 @@ function componentCells(document: Document, table: string, rowOffset: number, se
   }
 
   function cellsFromTrs(tr: Element, trIndex: number): ComponentCell[] {
-    return Array.from(tr.querySelectorAll("div.item_icon_container a"))
+    return Array.from(tr.querySelectorAll<HTMLAnchorElement>("div.item_icon_container a"))
       .map((a, cellIndex) => {
         const cell = a.parentNode?.parentNode as Element;
-        const title: string = (a as any).title as string;
+        const title: string = a.title;
 
         return {
           table,
@@ -81,7 +86,7 @@ function componentCells(document: Document, table: string, rowOffset: number, se
           td: cell,
           cellIndex,
           title,
-          href: (a as any).href as string,
+          href: a.href as string,
           srcset: getSrcsetFromDoc(cell as Element, "div a img"),
         };
       })
@@ -91,11 +96,11 @@ function componentCells(document: Document, table: string, rowOffset: number, se
   return loadTrTags().map(cellsFromTrs).reduce((arr, cells) => arr.concat(cells), []);
 }
 
-export const loadComponentCells: (messageFunction: MessageFunction) => Promise<ComponentCell[]> = (function() {
+export const loadComponentCells: (messageFunction: MessageFunction) => Promise<Components> = (function() {
   class Loader {
     private responseTextPromise: Promise<string> | undefined = undefined;
     private docPromise: Promise<Document> | undefined = undefined;
-    private parsePromise: Promise<ComponentCell[]> | undefined = undefined;
+    private parsePromise: Promise<Components> | undefined = undefined;
 
     private memoizeFetch(): Promise<string> {
       return this.responseTextPromise ||
@@ -106,26 +111,30 @@ export const loadComponentCells: (messageFunction: MessageFunction) => Promise<C
       return this.docPromise || (this.docPromise = this.memoizeFetch().then(text => new JSDOM(text).window.document));
     }
 
-    private memoizeParse(): Promise<ComponentCell[]> {
+    private memoizeParse(): Promise<Components> {
       return this.parsePromise || (this.parsePromise = this.memoizeDoc().then(
-        document =>
-          componentCells(
+        document => {
+          const cells = componentCells(
             document,
             "Components",
             0,
-            "#mw-content-text > div.mw-parser-output > div > table:nth-child(5) > tbody > tr"
+            "#mw-content-text > div.mw-parser-output > div > table:nth-child(5) > tbody > tr",
           )
-          .concat(componentCells(
-            document,
-            "Buildings",
-            7,
-            "#mw-content-text > div.mw-parser-output > div > table:nth-child(8) > tbody > tr"
-          ))
-          .sort((c1, c2) => c1.key.localeCompare(c2.key))
-      ));
+            .concat(componentCells(
+              document,
+              "Buildings",
+              7,
+              "#mw-content-text > div.mw-parser-output > div > table:nth-child(8) > tbody > tr",
+            ))
+            .sort((c1, c2) => c1.key.localeCompare(c2.key));
+          return {
+            cells,
+            cellsByKey: cells.reduce(toMapByKey(cell => cell.key), new Map()),
+          };
+        }));
     }
 
-    async runWithMessage(messageFunction: MessageFunction): Promise<ComponentCell[]> {
+    async runWithMessage(messageFunction: MessageFunction): Promise<Components> {
       messageFunction(<Text color="green" dimColor>Fetching <Text inverse> {ITEMS_PAGE} </Text>...</Text>);
       await this.memoizeFetch();
 
